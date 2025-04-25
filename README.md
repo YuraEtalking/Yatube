@@ -256,3 +256,21 @@ python manage.py runserver
 **Проверить JWT-токен:**   
 <span style="color: #6091ff;">POST</span>
 `http://127.0.0.1:8000/api/v1/jwt/verify/`
+
+
+## Технологии
+- Python 3.9
+- Django
+- Django REST Framework
+- SimpleJWT
+- SQLite3
+- Djoser
+
+## Документация
+Документация при локальном запуске проекта, доступна по адресу:
+`http://localhost:8000/redoc/`
+
+
+## Об авторе
+Студент факультета Бэкенд. Когорта №56+  
+[Юрий Рыжков](https://github.com/YuraEtalking)
