@@ -1,4 +1,4 @@
-"""Модуль содержит эндпоинты для API"""
+"""Модуль содержит эндпоинты для API."""
 from django.urls import include, path
 from rest_framework import routers
 
@@ -17,7 +17,6 @@ router_v1.register(
 router_v1.register('follow', FollowViewSet, basename='follow')
 
 urlpatterns = [
-    path('v1/', include('djoser.urls')),
     path('v1/', include('djoser.urls.jwt')),
     path('v1/', include(router_v1.urls))
 ]

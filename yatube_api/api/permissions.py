@@ -9,15 +9,9 @@ from rest_framework.views import APIView
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """Класс разрешений.
 
-    Предоставляет доступ на чтение всем пользователям, а доступ на
-    изменение только владельцу объекта.
+    Предоставляет доступ на чтение всем пользователям на безопасные методы
+    (GET, HEAD и OPTIONS), а доступ на изменение только владельцу объекта.
     """
-
-    def has_permission(self, request: Request, view: APIView):
-        """Проверяет наличие прав доступа пользователя на уровне запроса."""
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return request.user.is_authenticated
 
     def has_object_permission(
             self,
@@ -26,6 +20,5 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
             obj: Any
     ):
         """Проверяет права доступа пользователя к конкретному объекту."""
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return obj.author == request.user
+        return (request.method in permissions.SAFE_METHODS
+                or obj.author == request.user)

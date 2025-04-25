@@ -27,6 +27,9 @@ class Post(models.Model):
         related_name='posts', blank=True, null=True
     )
 
+    class Meta:
+        ordering = ['-pub_date']
+
     def __str__(self):
         if len(self.text) > TEXT_PREVIEW_LENGTH:
             return self.text[:TEXT_PREVIEW_LENGTH] + '...'
@@ -50,4 +53,13 @@ class Follow(models.Model):
         User, on_delete=models.CASCADE, related_name='followers')
 
     class Meta:
-        unique_together = ('user', 'following')
+        constraints = [
+            models.UniqueConstraint(
+                name='unique_user_following',
+                fields=['user', 'following']
+            ),
+            models.CheckConstraint(
+                name='s_prevent_self_follow',
+                check=~models.Q(user=models.F('following'))
+            ),
+        ]

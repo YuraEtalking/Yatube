@@ -3,9 +3,10 @@ from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404
 from rest_framework import mixins, serializers, viewsets
 from rest_framework import filters
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.pagination import LimitOffsetPagination
 
 from .permissions import IsOwnerOrReadOnly
-from .pagination import PostPagination
 from posts.models import Comment, Group, Follow, Post
 from .serializers import (
     CommentSerializer,
@@ -20,8 +21,8 @@ class PostViewSet(viewsets.ModelViewSet):
 
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = (IsOwnerOrReadOnly,)
-    pagination_class = PostPagination
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
+    pagination_class = LimitOffsetPagination
 
     def perform_create(self, serializer: serializers.ModelSerializer) -> None:
         """Переопределяет метод создания публикации.
@@ -36,14 +37,14 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     """Вьюсет для обработки запросов к комментариям."""
 
     serializer_class = CommentSerializer
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
 
     def get_post(self) -> Post:
         """Получаем объект поста по его ID или возвращаем 404 ошибку."""
@@ -72,8 +73,7 @@ class FollowViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet
 ):
-    """Вьюсет для обработки запросов на подписку и получение списка подписок
-    пользователя.
+    """Вьюсет для обработки запросов на подписку и получение списка подписок.
 
     Позволяет пользователю просматривать свои подписки и подписываться на
     других пользователей.
@@ -85,7 +85,8 @@ class FollowViewSet(
 
     def get_queryset(self) -> QuerySet[Follow]:
         """Возвращает queryset с подписками текущего пользователя."""
-        return Follow.objects.filter(user=self.request.user)
+        user = self.request.user
+        return user.following.all()
 
     def perform_create(self, serializer: serializers.ModelSerializer) -> None:
         """Сохраняет новую подписку для текущего пользователя."""
